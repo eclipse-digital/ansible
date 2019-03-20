@@ -22,7 +22,9 @@ options:
   network:
     description:
       - The network name or id.
-    required: true
+  physical_network:
+    description:
+      - The physical network name or id.
   start_ip:
     description:
       - The beginning IPv4 address in the VLAN IP range.
@@ -269,6 +271,8 @@ class AnsibleCloudStackVlanIpRange(AnsibleCloudStack):
             'networkid': self.get_network(key='id'),
             'forvirtualnetwork': self.module.params.get('for_virtual_network'),
         }
+        if self.module.params.get('physical_network'):
+            args['physicalnetworkid'] = self.get_physical_network(key='id')
 
         if not self.module.check_mode:
             res = self.query_api('createVlanIpRange', **args)
@@ -296,7 +300,8 @@ class AnsibleCloudStackVlanIpRange(AnsibleCloudStack):
 def main():
     argument_spec = cs_argument_spec()
     argument_spec.update(dict(
-        network=dict(type='str', required=True),
+        network=dict(type='str'),
+        physical_network=dict(type='str'),
         zone=dict(type='str'),
         start_ip=dict(type='str', required=True),
         end_ip=dict(type='str'),
